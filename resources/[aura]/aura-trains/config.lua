@@ -1,0 +1,2 @@
+Trains = {}
+Trains.Config = {}
