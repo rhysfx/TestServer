@@ -7,10 +7,13 @@ Trains.Client.LoadTrainModels = function()
         while not HasModelLoaded(modelHashKey) do
             Citizen.Wait(500)
         end
+        print("loaded")
     end
 end
 
-Trains.Client.LoadTrainModels()
+RegisterCommand("load", function(source, args, rawCommand)
+    Trains.Client.LoadTrainModels()
+end, false)
 
 RegisterCommand("spawntrain", function(source, args, rawCommand)
     local playerCoords = GetEntityCoords(PlayerPedId())
