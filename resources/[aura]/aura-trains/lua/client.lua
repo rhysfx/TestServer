@@ -1,22 +1,44 @@
-Trains.Client = {}
+--[[ 
+    This function needs to be invoked prior to calling CreateMissionTrain  or the trains (as well as its carriages) won't spawn.
+    Could also result in a game-crash when CreateMissionTrain is called without
+    loading the train model needed for the variation before-hand.
+]]
+function loadTrainModels()
+    local trainsAndCarriages = {
+        'freight', 'metrotrain', 'freightcont1', 'freightcar', 
+        'freightcar2', 'freightcont2', 'tankercar', 'freightgrain'
+    }
 
-Trains.Client.LoadTrainModels = function()
-    for _, vehicleName in ipairs(Trains.Config.Models) do
+    for _, vehicleName in ipairs(trainsAndCarriages) do
         local modelHashKey = GetHashKey(vehicleName)
-        RequestModel(modelHashKey)
+        RequestModel(modelHashKey) -- load the model
+        -- wait for the model to load
         while not HasModelLoaded(modelHashKey) do
             Citizen.Wait(500)
         end
-        print("loaded")
     end
 end
 
-RegisterCommand("load", function(source, args, rawCommand)
-    Trains.Client.LoadTrainModels()
-end, false)
+loadTrainModels()
 
-RegisterCommand("spawntrain", function(source, args, rawCommand)
+RegisterCommand("createtrain", function(source, args, rawCommand)
+    if #args < 1 then
+        TriggerEvent('chat:addMessage', {
+            args = { 
+                'Error, provide a variation id, you can find those in trains.xml. Variations range from 0 to 26.'
+            }
+        })
+        return
+    end
+    
     local playerCoords = GetEntityCoords(PlayerPedId())
-    -- 1438.98, 6405.92, 34.19
-    CreateMissionTrain(26, playerCoords.x, playerCoords.y, playerCoords.z, true, true, true)
+     -- Now actually create a train using a variation
+     -- These coordinates were used for testing: 1438.98, 6405.92, 34.19
+    CreateMissionTrain(
+        tonumber(args[1]),
+        playerCoords.x, playerCoords.y, playerCoords.z,
+        true,
+        true,
+        true
+    )
 end, false)
