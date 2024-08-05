@@ -1,8 +1,3 @@
---[[ 
-    This function needs to be invoked prior to calling CreateMissionTrain  or the trains (as well as its carriages) won't spawn.
-    Could also result in a game-crash when CreateMissionTrain is called without
-    loading the train model needed for the variation before-hand.
-]]
 function loadTrainModels()
     local trainsAndCarriages = {
         'freight', 'metrotrain', 'freightcont1', 'freightcar', 
@@ -32,13 +27,19 @@ RegisterCommand("createtrain", function(source, args, rawCommand)
     end
     
     local playerCoords = GetEntityCoords(PlayerPedId())
-     -- Now actually create a train using a variation
-     -- These coordinates were used for testing: 1438.98, 6405.92, 34.19
-    CreateMissionTrain(
+    -- Create the train and store its handle
+    local trainHandle = CreateMissionTrain(
         tonumber(args[1]),
         playerCoords.x, playerCoords.y, playerCoords.z,
         true,
         true,
         true
     )
+    
+    -- Wait for the train to be fully spawned
+    Citizen.Wait(1000)
+
+    -- Put the player in the driver seat of the train
+    local playerPed = PlayerPedId()
+    TaskWarpPedIntoVehicle(playerPed, trainHandle, -1)
 end, false)
